@@ -28,7 +28,7 @@ func main() {
 }
 
 func listUsers(firestone *repository.Firestone) {
-	iter, _ := firestone.Get("users")
+	iter, _ := firestone.GetAll("users")
 
 	var user entities.User
 

@@ -81,7 +81,7 @@ func (f *Firestone) Save(collectionName string, data interface{}) error {
 }
 
 // Get a list of documents in the collection
-func (f *Firestone) Get(collectionName string) (*firestore.DocumentIterator, error) {
+func (f *Firestone) GetAll(collectionName string) (*firestore.DocumentIterator, error) {
 	if f.client == nil {
 		return nil, fmt.Errorf(connectionOpenError)
 	}
