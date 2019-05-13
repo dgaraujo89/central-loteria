@@ -22,7 +22,7 @@ func main() {
 
 	defer firestone.Close()
 
-	//saveUser(&firestone)
+	saveUser(&firestone)
 	listUsers(&firestone)
 	//deleteUser(&firestone)
 }
