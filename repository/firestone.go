@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"fmt"
+	"os"
 
 	"cloud.google.com/go/firestore"
 )
@@ -16,7 +17,9 @@ type Firestone struct {
 }
 
 // Connect open a connection with firestone
-func (f *Firestone) Connect(projectID string) error {
+func (f *Firestone) Connect() error {
+	projectID := os.Getenv("GCLOUD_PROJECT_ID")
+
 	if projectID == "" {
 		return fmt.Errorf("projectId not found")
 	}
