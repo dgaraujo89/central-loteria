@@ -14,5 +14,5 @@ type Exception struct {
 // HandleError response
 func HandleError(w http.ResponseWriter, e Exception) {
 	w.WriteHeader(e.Code)
-	json.NewEncoder(w).Encode(e.Message)
+	json.NewEncoder(w).Encode(e)
 }
