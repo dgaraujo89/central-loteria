@@ -4,10 +4,11 @@ import (
 	"log"
 	"os"
 
-	"github.com/diegogomesaraujo/central-loteria/server"
+	"github.com/diegogomesaraujo/central-loteria/internal/server"
 )
 
 func main() {
+	
 	port := os.Getenv("SERVER_PORT")
 	if port == "" {
 		port = "8080"
@@ -19,4 +20,5 @@ func main() {
 	allowedMethods := []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"}
 
 	server.StartServer(":"+port, allowedOrigins, allowedMethods)
+
 }

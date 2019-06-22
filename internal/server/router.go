@@ -1,6 +1,6 @@
 package server
 
-import "github.com/diegogomesaraujo/central-loteria/controller"
+import "github.com/diegogomesaraujo/central-loteria/internal/controller"
 
 var userController = &controller.UserController{}
 

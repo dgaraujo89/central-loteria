@@ -12,8 +12,8 @@ import (
 
 	"google.golang.org/api/iterator"
 
-	"github.com/diegogomesaraujo/central-loteria/entities"
-	"github.com/diegogomesaraujo/central-loteria/utils"
+	"github.com/diegogomesaraujo/central-loteria/pkg/entities"
+	"github.com/diegogomesaraujo/central-loteria/pkg/utils"
 )
 
 // UserController to access users resources

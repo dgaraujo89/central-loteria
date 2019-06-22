@@ -8,8 +8,8 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/diegogomesaraujo/central-loteria/exception"
-	"github.com/diegogomesaraujo/central-loteria/repository"
+	"github.com/diegogomesaraujo/central-loteria/pkg/exception"
+	"github.com/diegogomesaraujo/central-loteria/pkg/repository"
 )
 
 func readBodyFromJSON(w http.ResponseWriter, r *http.Request, entity interface{}) error {
