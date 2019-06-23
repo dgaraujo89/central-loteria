@@ -8,12 +8,9 @@ import (
 
 	"github.com/gorilla/mux"
 
-	"github.com/badoux/checkmail"
-
-	"google.golang.org/api/iterator"
-
+	"github.com/diegogomesaraujo/central-loteria/pkg/commons"
 	"github.com/diegogomesaraujo/central-loteria/pkg/entities"
-	"github.com/diegogomesaraujo/central-loteria/pkg/utils"
+	"github.com/diegogomesaraujo/central-loteria/pkg/services"
 )
 
 // UserController to access users resources
@@ -23,34 +20,13 @@ const userCollectionName = "users"
 
 // Find all users
 func (c *UserController) Find(w http.ResponseWriter, r *http.Request) {
-	firestore, err := firestoreConnect(w)
-	if err != nil {
-		log.Printf("Error when connect to firestore: %v\n", err)
-		return
-	}
+	userService := services.UserService{}
 
-	defer firestore.Close()
-
-	docIter, err := firestore.GetAll(userCollectionName)
-
+	users, err := userService.FindAll()
 	if err != nil {
 		log.Printf("Error when get all users: %v\n", err)
 		json.NewEncoder(w).Encode([]entities.User{})
 		return
-	}
-
-	var user entities.User
-	var users []entities.User
-
-	for {
-		doc, err := docIter.Next()
-		if err == iterator.Done {
-			break
-		}
-
-		doc.DataTo(&user)
-		user.ID = doc.Ref.ID
-		users = append(users, user)
 	}
 
 	w.Header().Set("Content-Type", "application/json")
@@ -66,34 +42,20 @@ func (c *UserController) FindByID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	firestore, err := firestoreConnect(w)
+	userService := services.UserService{}
+
+	user, err := userService.FindByID(params["id"])
+
 	if err != nil {
-		log.Printf("Error when connect to firestore: %v\n", err)
-		return
-	}
-
-	defer firestore.Close()
-
-	doc, errDoc := firestore.Get(userCollectionName, params["id"])
-
-	if errDoc != nil {
-		if strings.Contains(errDoc.Error(), "NotFound") {
+		if strings.Contains(err.Error(), "NotFound") {
 			handleExceptionError(w, "User not found", http.StatusNotFound)
 			return
 		}
 
-		log.Printf("An error was occured when get collection ref: %v\n", errDoc)
+		log.Printf("An error was occured when get collection ref: %v\n", err)
 		handleExceptionError(w, "An erro occured when get the user", http.StatusInternalServerError)
 		return
 	}
-
-	if doc == nil {
-		handleExceptionError(w, "User not found", http.StatusNotFound)
-		return
-	}
-
-	var user entities.User
-	doc.DataTo(&user)
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(user)
@@ -107,33 +69,18 @@ func (c *UserController) Add(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// TODO: change the e-mail validation method
-	if checkmail.ValidateFormat(user.Email) != nil {
-		handleExceptionError(w, "Invalid e-mail address", http.StatusBadRequest)
+	userValidation := UserValidation{}
+
+	if userValidation.AddValidation(w, user) != nil {
 		return
 	}
 
-	if user.Name == "" {
-		handleExceptionError(w, "Invalid name", http.StatusBadRequest)
-		return
-	}
-
-	if user.Password == "" || len(user.Password) < 6 {
-		handleExceptionError(w, "Invalid password", http.StatusBadRequest)
-		return
-	}
+	userService := services.UserService{}
 
 	user.ID = ""
 	user.Password = commons.Encrypt(user.Password)
 
-	firestore, err := firestoreConnect(w)
-	if err != nil {
-		log.Printf("Error when connect to firestore: %v\n", err)
-		return
-	}
-	defer firestore.Close()
-
-	err = firestore.Save(userCollectionName, user)
+	err := userService.Save(user)
 	if err != nil {
 		handleExceptionError(w, "User not created", http.StatusInternalServerError)
 	}
@@ -154,14 +101,10 @@ func (c *UserController) Update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	firestore, err := firestoreConnect(w)
-	if err != nil {
-		log.Printf("Error when connect to firestore: %v\n", err)
-		return
-	}
-	defer firestore.Close()
+	userService := services.UserService{}
 
-	err = firestore.Update(userCollectionName, user.ID, user)
+	err := userService.Update(user)
+
 	if err != nil {
 		log.Printf("Error when update user: %v\n", err)
 		handleExceptionError(w, "User not updated", http.StatusInternalServerError)
@@ -188,17 +131,9 @@ func (c *UserController) UpdatePassword(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	firestore, err := firestoreConnect(w)
-	if err != nil {
-		log.Printf("Error when connect to firestore: %v\n", err)
-		return
-	}
+	userService := services.UserService{}
 
-	defer firestore.Close()
-
-	err = firestore.UpdatePartial(userCollectionName, user.ID, map[string]interface{}{
-		"Password": commons.Encrypt(user.Password),
-	})
+	err := userService.UpdatePassword(user)
 
 	if err != nil {
 		log.Printf("An error was occured when update: %v\n", err)
@@ -218,15 +153,9 @@ func (c *UserController) Delete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	firestore, err := firestoreConnect(w)
-	if err != nil {
-		log.Printf("Error when connect to firestore: %v\n", err)
-		return
-	}
+	userService := services.UserService{}
 
-	defer firestore.Close()
-
-	err = firestore.Delete(userCollectionName, params["id"])
+	err := userService.Delete(params["id"])
 
 	if err != nil {
 		log.Printf("An error was occured when remove the user: %v\n", err)

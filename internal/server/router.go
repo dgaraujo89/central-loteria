@@ -3,10 +3,18 @@ package server
 import "github.com/diegogomesaraujo/central-loteria/internal/controller"
 
 var userController = &controller.UserController{}
+var loginController = &controller.LoginController{}
 
 type routes []Route
 
 var routesList = routes{
+	Route{
+		Name:        "Login",
+		Method:      "POST",
+		Path:        "/auth",
+		HandlerFunc: loginController.Auth,
+	},
+
 	Route{
 		Name:        "List all User",
 		Method:      "GET",

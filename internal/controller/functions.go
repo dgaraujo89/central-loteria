@@ -2,14 +2,12 @@ package controller
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
 
 	"github.com/diegogomesaraujo/central-loteria/pkg/exception"
-	"github.com/diegogomesaraujo/central-loteria/pkg/repository"
 )
 
 func readBodyFromJSON(w http.ResponseWriter, r *http.Request, entity interface{}) error {
@@ -42,17 +40,4 @@ func handleExceptionError(w http.ResponseWriter, message string, httpCode int) {
 		Code:    httpCode,
 	}
 	exception.HandleError(w, ex)
-}
-
-func firestoreConnect(w http.ResponseWriter) (repository.Firestore, error) {
-	firestore := repository.Firestore{}
-	err := firestore.Connect()
-
-	if err != nil {
-		log.Printf("Error when connect to firestore: %v\n", err)
-		handleExceptionError(w, "Connection error", http.StatusInternalServerError)
-		return firestore, errors.New("Connection error")
-	}
-
-	return firestore, nil
 }
