@@ -1,8 +1,10 @@
 package controller
 
 import (
-	"net/http"
+	"fmt"
 	"io"
+	"log"
+	"net/http"
 
 	"github.com/diegogomesaraujo/central-loteria/pkg/commons"
 	"github.com/diegogomesaraujo/central-loteria/pkg/entities"
@@ -34,6 +36,13 @@ func (l *LoginController) Auth(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	token, err := CreateToken(user.Email)
+	if err != nil {
+		log.Printf("Error: %v\n", err)
+		handleExceptionError(w, "An error occurred", http.StatusInternalServerError)
+		return
+	}
+
 	w.Header().Set("Content-type", "application/json")
-	io.WriteString(w, `{"token": "8n734v87v2638bfn9d432n7yf3d873d8n75476b"}`)
+	io.WriteString(w, fmt.Sprintf(`{"token": "%s"}`, token))
 }

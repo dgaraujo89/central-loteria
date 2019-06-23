@@ -130,7 +130,7 @@ func (u *UserService) FindByEmail(email string) *entities.User {
 
 	var user entities.User
 
-	iter := collection.Where("Email", "==", email).Documents(firestore.GetContext())
+	iter := collection.Where("email", "==", email).Documents(firestore.GetContext())
 	for {
 		doc, err := iter.Next()
 		if err == iterator.Done {
